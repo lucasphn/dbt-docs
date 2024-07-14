@@ -1,5 +1,6 @@
 name: Deploy dbt docs to GitHub Pages
 
+
 on:
   push:
     branches:
@@ -53,7 +54,7 @@ jobs:
 
     - name: Install dependancies
       run: dbt deps
-
+      
     - name: Generate dbt docs
       run: dbt docs generate
 
