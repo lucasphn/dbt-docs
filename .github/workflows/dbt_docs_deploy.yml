@@ -1,0 +1,73 @@
+name: Deploy dbt docs to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.8
+
+    - name: Install dbt
+      run: pip install dbt-bigquery
+
+    - name: Set up dbt profile
+      run: |
+        mkdir -p ~/.dbt
+        echo "
+        analytics:
+          target: dev
+          outputs:
+            dev:
+              type: bigquery
+              method: service-account-json
+              project: dw-with-mordern-data-stacks
+              dataset: bronze
+              threads: 1
+              timeout_seconds: 300
+              location: us-west1
+              priority: interactive
+              retries: 1
+              keyfile_json:
+                type: ${{ secrets.BIGQUERY_TYPE }}
+                project_id: ${{ secrets.BIGQUERY_PROJECT_ID }}
+                private_key_id: ${{ secrets.BIGQUERY_PRIVATE_KEY_ID }}
+                private_key: ${{ secrets.BIGQUERY_PRIVATE_KEY }}
+                client_email: ${{ secrets.BIGQUERY_CLIENTE_EMAIL }}
+                client_id: ${{ secrets.BIGQUERY_CLIENTE_ID }}
+                auth_uri: ${{ secrets.BIGQUERY_AUTH_URI }}
+                token_uri: ${{ secrets.BIGQUERY_TOKEN_URI }}
+                auth_provider_x509_cert_url: ${{ secrets.BIGQUERY_AUTH_PROVIDER }}
+                client_x509_cert_url: ${{ secrets.BIGQUERY_CLIENT_URL }}
+        " > ~/.dbt/profiles.yml
+
+    - name: Install dependencies and generate docs
+      run: |
+        cd airflow/dbt
+        dbt deps
+        dbt docs generate
+
+    - name: List directories and files
+      run: |
+        echo "Listing root directory:"
+        ls -la
+        echo "Listing dbt directory:"
+        ls -la airflow/dbt
+        echo "Listing target directory:"
+        ls -la airflow/dbt/target
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GH_PAT }}
+        publish_dir: ./airflow/dbt/target

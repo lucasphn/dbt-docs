@@ -1,0 +1,8 @@
+models:
+  - name: silver_funcionarios_lyncas
+    description: Tabela de cadastro de funcionários Lyncas.
+    columns:
+      - name: id
+        description: Chave única para cada funcionário
+        data_tests:
+          - not_null

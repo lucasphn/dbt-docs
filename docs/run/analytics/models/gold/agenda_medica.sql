@@ -1,0 +1,50 @@
+
+
+
+
+    create or replace table `dw-with-mordern-data-stacks`.`gold`.`agenda_medica`
+
+
+
+
+    OPTIONS()
+    as (
+
+
+
+with
+
+agenda_medica as (
+
+    select
+
+        id,
+        price,
+        description,
+        nome_medico,
+        data_agendada,
+        created_at
+
+    from `dw-with-mordern-data-stacks`.`silver`.`silver_agenda_medica`
+
+),
+
+agenda_medica_renamed as (
+
+    select
+
+        id,
+        price as preco,
+        description as descricao ,
+        nome_medico as nome_do_medico,
+        data_agendada as data_do_agendamento,
+        created_at criado_em
+
+    from agenda_medica
+
+)
+
+select *
+
+from agenda_medica_renamed
+    );
