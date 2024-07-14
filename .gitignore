@@ -3,7 +3,6 @@ target/
 dbt_packages/
 logs/
 profiles.yml
-docs
 .venv
 .env
 .user.yml
